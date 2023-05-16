@@ -29,7 +29,7 @@ class StoreReservationRequest extends FormRequest
                     $currentDateTime = Carbon::now();
 
                     if ($startAt->diffInHours($currentDateTime) < 6) {
-                        $fail("The {$attribute} must be at least six hours before the current time.");
+                        $fail("The start time must be at least six hours before the current time.");
                     }
                 },
                 // Validate start time is not more than 60 days from current time
@@ -39,12 +39,25 @@ class StoreReservationRequest extends FormRequest
                     $maxAllowedDays = 60;
 
                     if ($startAt->diffInDays($currentDateTime) > $maxAllowedDays) {
-                        $fail("The {$attribute} cannot be more than {$maxAllowedDays} days from the current time.");
+                        $fail("The start date cannot be more than {$maxAllowedDays} days from now.");
                     }
                 },
             ],
 
 
+            'children' => [
+                'required',
+                'array',
+                'min:1',
+                'max:4'
+//                // Validate maximum of four children per reservation
+//                function ($attribute, $children, $fail) {
+//                    $maxAllowedChildren = 4;
+//                    if (count($children) > 4) {
+//                        $fail("The number of children cannot be more than {$maxAllowedChildren}.");
+//                    }
+//                },
+            ],
 
 
         ];

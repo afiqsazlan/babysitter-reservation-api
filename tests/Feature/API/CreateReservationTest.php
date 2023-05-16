@@ -169,4 +169,57 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('start_at');
     }
 
+    public function test_maximum_four_children_per_reservation(): void
+    {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+        // Number of children is more than 4
+        $children = [
+            ['name' => 'Ahmad', 'age_months' => 12],
+            ['name' => 'Nurul', 'age_months' => 15],
+            ['name' => 'Muhammad', 'age_months' => 18],
+            ['name' => 'Siti', 'age_months' => 21],
+            ['name' => 'Hafiz', 'age_months' => 24],
+            ['name' => 'Aisyah', 'age_months' => 27],
+        ];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "address" => $address,
+            "children" => $children
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children');
+    }
+
+    public function test_minimum_one_child_required(): void
+    {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+        $children = [];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "children" => $children,
+            "address" => $address,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children');
+    }
+
 }
