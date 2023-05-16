@@ -88,7 +88,33 @@ class CreateReservationTest extends TestCase
         );
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors('phone');
+            ->assertJsonValidationErrors('customer_phone');
+    }
+
+    public function test_customer_name_is_required(): void
+    {
+
+        $phoneNumber = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->subHours(12)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(12)->toDateTimeString();
+        $children = [['name' => 'Ali', 'age_months' => 12]];
+
+
+        $response = $this->postJson(
+            $this->endpoint,
+            [
+                "customer_name" => null,
+                "customer_phone" => $phoneNumber,
+                "start_at" => $startAt,
+                "end_at" => $endAt,
+                "address" => $address,
+                "children" => $children
+            ]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('customer_name');
     }
 
 

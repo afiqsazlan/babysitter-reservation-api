@@ -15,7 +15,8 @@ class StoreReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => ['required']
+            'customer_name' => ['required'],
+            'customer_phone' => ['required']
         ];
     }
 }
