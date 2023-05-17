@@ -222,4 +222,105 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children');
     }
 
+    public function test_children_maximum_age_is_below_thirteen_years_old() {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+        $children = [
+            ['name' => 'Ahmad', 'age_months' => 180],
+        ];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "children" => $children,
+            "address" => $address,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children.0.age_months');
+    }
+
+    public function test_children_minimum_age_is_one_month_old() {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+        $children = [
+            ['name' => 'Ahmad', 'age_months' => 0],
+        ];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "children" => $children,
+            "address" => $address,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children.0.age_months');
+    }
+
+    public function test_children_name_is_required() {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+        $children = [
+            ['name' => 'Ahmad', 'age_months' => 180],
+            ['name' => null, 'age_months' => 180],
+        ];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "children" => $children,
+            "address" => $address,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children.1.name');
+    }
+
+    public function test_children_age_in_months_is_required() {
+        $name = fake()->name;
+        $phone = fake()->phoneNumber;
+        $address = fake()->address;
+        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
+        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+        $children = [
+            ['name' => 'Ahmad', 'age_months' => 180],
+            ['name' => 'Lisa', 'age_months' => null],
+        ];
+
+        $response = $this->postJson($this->endpoint, [
+            "customer_name" => $name,
+            "customer_phone" => $phone,
+            "start_at" => $startAt,
+            "end_at" => $endAt,
+            "children" => $children,
+            "address" => $address,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('children.1.age_months');
+    }
+
+
+
+
 }

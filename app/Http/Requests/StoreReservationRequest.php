@@ -49,16 +49,31 @@ class StoreReservationRequest extends FormRequest
                 'required',
                 'array',
                 'min:1',
-                'max:4'
-//                // Validate maximum of four children per reservation
-//                function ($attribute, $children, $fail) {
-//                    $maxAllowedChildren = 4;
-//                    if (count($children) > 4) {
-//                        $fail("The number of children cannot be more than {$maxAllowedChildren}.");
-//                    }
-//                },
+                'max:4',
             ],
 
+            'children.*.name' => ['required'],
+            'children.*.age_months' => [
+                'required',
+
+                // Max age of child is below 13 years old
+                function ($attribute, $age, $fail) {
+                    $maxAgeMonths = 156; // Below 13 years old
+
+                    if ($age >= $maxAgeMonths) {
+                        $fail("Only children below 13 years old are allowed");
+                    }
+                },
+
+                // Min age of child is 1 month
+                function ($attribute, $age, $fail) {
+                    $minAgeMonths = 1;
+
+                    if ($age < 1) {
+                        $fail("Only children above 1 month are allowed");
+                    }
+                },
+            ]
 
         ];
     }
