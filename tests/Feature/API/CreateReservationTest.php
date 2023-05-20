@@ -17,11 +17,11 @@ class CreateReservationTest extends TestCase
     public function test_guest_can_create_reservation(): void
     {
 
+        $this->withoutExceptionHandling();
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->subHours(12)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(12)->toDateTimeString();
+        $reservationStartAt = Carbon::now()->addDays(4)->toDateTimeString();
         $children = [
             ['name' => 'Ali', 'date_of_birth' => Carbon::now()->subYears(8)->toDateString()],
             ['name' => 'Ali', 'date_of_birth' => Carbon::now()->subYears(5)->toDateString()],
@@ -33,8 +33,7 @@ class CreateReservationTest extends TestCase
             [
                 "customer_name" => $name,
                 "customer_phone" => $phone,
-                "start_at" => $startAt,
-                "end_at" => $endAt,
+                'start_at' => $reservationStartAt,
                 "address" => $address,
                 "children" => $children
             ]
@@ -57,8 +56,7 @@ class CreateReservationTest extends TestCase
             'reservations',
             [
                 "address" => $address,
-                "start_at" => $startAt,
-                "end_at" => $endAt,
+                'start_at' => $reservationStartAt,
                 "children" => $this->castAsJson($children)
             ]
         );
@@ -79,8 +77,6 @@ class CreateReservationTest extends TestCase
             [
                 "customer_name" => $name,
                 "customer_phone" => null,
-                "start_at" => $startAt,
-                "end_at" => $endAt,
                 "address" => $address,
                 "children" => $children
             ]
@@ -95,8 +91,6 @@ class CreateReservationTest extends TestCase
 
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->subHours(12)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(12)->toDateTimeString();
         $children = [['name' => 'Ali', 'date_of_birth' => Carbon::now()->subYears(2)->toDateString()]];
 
 
@@ -105,8 +99,6 @@ class CreateReservationTest extends TestCase
             [
                 "customer_name" => null,
                 "customer_phone" => $phone,
-                "start_at" => $startAt,
-                "end_at" => $endAt,
                 "address" => $address,
                 "children" => $children
             ]
@@ -116,22 +108,20 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('customer_name');
     }
 
-    public function test_reservation_must_start_six_hours_before_now(): void
+    public function test_reservation_must_start_six_hours_after_now(): void
     {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
         $children = [['name' => 'Ali', 'date_of_birth' => Carbon::now()->subYears(2)->toDateString()]];
 
-        // Start time is less than six hours before the current time
-        $startAt = Carbon::now()->subHours(5)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+        // Reservation is after six hours from now
+        $reservationStartAt = Carbon::now()->addHours(6)->toDateTimeString();
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
+            "start_at" => $reservationStartAt,
             "address" => $address,
             "children" => $children
         ]);
@@ -140,23 +130,21 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('start_at');
     }
 
-    public function test_reservation_must_within_sixty_days_from_now(): void
+    public function test_reservation_must_be_within_sixty_days_from_now(): void
     {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
         $children = [['name' => 'Ali', 'date_of_birth' => Carbon::now()->subYears(2)->toDateString()]];
 
-        // Start date is more than 60 days from now
-        $startAt = Carbon::now()->addDays(66)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+        // Reservation is within 60 days from now
+        $reservationStartAt = Carbon::now()->addDays(61)->toDateTimeString();
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "address" => $address,
+            "start_at" => $reservationStartAt,
             "children" => $children
         ]);
 
@@ -169,8 +157,7 @@ class CreateReservationTest extends TestCase
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
 
         // Number of children is more than 4
         $children = [
@@ -187,8 +174,6 @@ class CreateReservationTest extends TestCase
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "address" => $address,
             "children" => $children
         ]);
@@ -202,15 +187,13 @@ class CreateReservationTest extends TestCase
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
+
         $children = [];
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => $address,
         ]);
@@ -219,7 +202,8 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children');
     }
 
-    public function test_children_maximum_age_is_below_thirteen_years_old() {
+    public function test_children_maximum_age_is_below_thirteen_years_old()
+    {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
@@ -233,8 +217,6 @@ class CreateReservationTest extends TestCase
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => $address,
         ]);
@@ -243,12 +225,12 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children.0.date_of_birth');
     }
 
-    public function test_children_minimum_age_is_one_month_old() {
+    public function test_children_minimum_age_is_one_month_old()
+    {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
 
         $children = [
             ['name' => 'Ahmad', 'date_of_birth' => Carbon::now()->subDays()->toDateTimeString()],
@@ -257,8 +239,6 @@ class CreateReservationTest extends TestCase
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => $address,
         ]);
@@ -267,23 +247,21 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children.0.date_of_birth');
     }
 
-    public function test_children_name_is_required() {
+    public function test_children_name_is_required()
+    {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
 
         $children = [
-            ['name' => 'Ahmad', 'date_of_birth' =>  Carbon::now()->subYears(8)->toDateString()],
-            ['name' => null, 'date_of_birth' =>  Carbon::now()->subYears(8)->toDateString()],
+            ['name' => 'Ahmad', 'date_of_birth' => Carbon::now()->subYears(8)->toDateString()],
+            ['name' => null, 'date_of_birth' => Carbon::now()->subYears(8)->toDateString()],
         ];
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => $address,
         ]);
@@ -292,23 +270,21 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children.1.name');
     }
 
-    public function test_children_date_of_birth_is_required() {
+    public function test_children_date_of_birth_is_required()
+    {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
         $address = fake()->address;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
+
 
         $children = [
-            ['name' => 'Ahmad', 'date_of_birth' =>  Carbon::now()->subYears(8)->toDateString()],
+            ['name' => 'Ahmad', 'date_of_birth' => Carbon::now()->subYears(8)->toDateString()],
             ['name' => 'Lisa', 'date_of_birth' => null],
         ];
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => $address,
         ]);
@@ -317,21 +293,18 @@ class CreateReservationTest extends TestCase
             ->assertJsonValidationErrors('children.1.date_of_birth');
     }
 
-    public function test_address_is_required() {
+    public function test_address_is_required()
+    {
         $name = fake()->name;
         $phone = fake()->phoneNumber;
-        $startAt = Carbon::now()->addDays(40)->toDateTimeString();
-        $endAt = Carbon::now()->subHours(1)->toDateTimeString();
 
         $children = [
-            ['name' => 'Ahmad', 'date_of_birth' =>  Carbon::now()->subYears(8)->toDateString()],
+            ['name' => 'Ahmad', 'date_of_birth' => Carbon::now()->subYears(8)->toDateString()],
         ];
 
         $response = $this->postJson($this->endpoint, [
             "customer_name" => $name,
             "customer_phone" => $phone,
-            "start_at" => $startAt,
-            "end_at" => $endAt,
             "children" => $children,
             "address" => null,
         ]);

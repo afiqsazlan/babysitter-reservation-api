@@ -14,13 +14,11 @@ class Reservation extends Model
         'reference_number',
         'address',
         'start_at',
-        'end_at',
         'children'
     ];
 
     protected $casts = [
         'start_at' => 'datetime',
-        'end_at' => 'datetime',
         'children' => 'json',
     ];
 

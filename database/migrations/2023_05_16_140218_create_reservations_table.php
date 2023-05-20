@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id');
             $table->string('reference_number')->unique(); // Reference number for the reservation
             $table->dateTime('start_at');
-            $table->dateTime('end_at');
             $table->string('address');
             $table->json('children');
             $table->timestamps();

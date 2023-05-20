@@ -26,7 +26,6 @@ class ReservationController extends Controller
             'reference_number' => $generateReferenceNumber->execute(),
             'address' => $request->address,
             'start_at' => $request->start_at,
-            'end_at' => $request->end_at,
             'children' => $request->children
         ]);
 

@@ -24,23 +24,23 @@ class StoreReservationRequest extends FormRequest
             'start_at' => [
                 'required',
                 'date',
-                // Validate start time is more than 6 hours earlier than current time
-                function ($attribute, $value, $fail) {
-                    $startAt = Carbon::parse($value);
+                // Validate reservation is 6 hours after current time
+                function ($attribute, $startAt, $fail) {
+                    $startAt = Carbon::parse($startAt);
                     $currentDateTime = Carbon::now();
 
                     if ($startAt->diffInHours($currentDateTime) < 6) {
-                        $fail("The start time must be at least six hours before the current time.");
+                        $fail("The reservation must be at least six hours from now.");
                     }
                 },
-                // Validate start time is not more than 60 days from current time
-                function ($attribute, $value, $fail) {
-                    $startAt = Carbon::parse($value);
-                    $currentDateTime = Carbon::now();
+                // Validate reservation is not more than 60 days from today
+                function ($attribute, $startAt, $fail) {
+                    $reservationDate = Carbon::parse($startAt);
+                    $todayDate = Carbon::now();
                     $maxAllowedDays = 60;
 
-                    if ($startAt->diffInDays($currentDateTime) > $maxAllowedDays) {
-                        $fail("The start date cannot be more than {$maxAllowedDays} days from now.");
+                    if ($reservationDate->diffInDays($todayDate) + 1 > $maxAllowedDays) {
+                        $fail("The reservation must be within {$maxAllowedDays} days from today.");
                     }
                 },
             ],
