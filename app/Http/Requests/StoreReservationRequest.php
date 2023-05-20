@@ -19,6 +19,7 @@ class StoreReservationRequest extends FormRequest
         return [
             'customer_name' => ['required'],
             'customer_phone' => ['required'],
+            'address' => ['required', 'string'],
 
             'start_at' => [
                 'required',
@@ -53,28 +54,28 @@ class StoreReservationRequest extends FormRequest
             ],
 
             'children.*.name' => ['required'],
-            'children.*.age_months' => [
+            'children.*.date_of_birth' => [
                 'required',
+                'date',
 
                 // Max age of child is below 13 years old
-                function ($attribute, $age, $fail) {
-                    $maxAgeMonths = 156; // Below 13 years old
+                function ($attribute, $dateOfBirth, $fail) {
+                    $maxDate = Carbon::now()->subYears(13)->toDateString();
 
-                    if ($age >= $maxAgeMonths) {
+                    if ($dateOfBirth <= $maxDate) {
                         $fail("Only children below 13 years old are allowed");
                     }
                 },
 
                 // Min age of child is 1 month
-                function ($attribute, $age, $fail) {
-                    $minAgeMonths = 1;
+                function ($attribute, $dateOfBirth, $fail) {
+                    $minDate = Carbon::now()->subMonth()->toDateString();
 
-                    if ($age < 1) {
-                        $fail("Only children above 1 month are allowed");
+                    if ($dateOfBirth >= $minDate) {
+                        $fail("Only children above 1 month old are allowed");
                     }
                 },
             ]
-
         ];
     }
 }
