@@ -78,4 +78,16 @@ class StoreReservationRequest extends FormRequest
             ]
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'customer_name.required' => 'Your name is required.',
+            'customer_phone.required' => 'Your phone number is required.',
+            'address.required' => 'Your address is required.',
+            'start_at.required' => "The reservation's date and time is required.",
+            'children.*.name' => "The child's name is required.",
+            'children.*.date_of_birth' => "The child's date of birth is required."
+        ];
+    }
 }
