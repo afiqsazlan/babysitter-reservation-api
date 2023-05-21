@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/reservations', [ReservationController::class, 'store']);
+Route::get('/reservations/{referenceNumber}', [ReservationController::class, 'show']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
