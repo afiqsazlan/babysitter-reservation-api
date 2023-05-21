@@ -17,7 +17,7 @@ class ReservationResource extends JsonResource
             'reference_number' => $this->reference_number,
             "customer_name" => $this->customer?->name,
             "customer_phone" => $this->customer?->phone,
-            'start_at' => $this->reservationStartAt,
+            'start_at' => $this->start_at,
             "address" => $this->address,
             "children" => array_map(function ($child) {
                 return [
