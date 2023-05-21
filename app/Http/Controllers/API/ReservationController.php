@@ -32,7 +32,7 @@ class ReservationController extends Controller
 
         $customer->reservations()->save($reservation);
 
-        return response()->json([], 201);
+        return new ReservationResource($reservation);
     }
 
     public function show($reservationNumber) {
